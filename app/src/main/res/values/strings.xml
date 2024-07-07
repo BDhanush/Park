@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Park</string>
+    <string name="automatic_parking_detector">Automatic Parking Detector</string>
+    <string name="save">save</string>
+</resources>
