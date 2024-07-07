@@ -99,7 +99,7 @@ class MainActivity : AppCompatActivity() {
 
         locationPermission = ContextCompat.checkSelfPermission(
             this,
-            Manifest.permission.POST_NOTIFICATIONS
+            Manifest.permission.ACCESS_FINE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
     }
 
