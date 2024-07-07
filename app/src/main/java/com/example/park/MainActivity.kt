@@ -4,16 +4,29 @@ import android.Manifest
 import android.app.ActivityManager
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.Location
+import android.location.LocationManager
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.room.Room
+import com.example.park.adapter.ParkingItemAdapter
 import com.example.park.databinding.ActivityMainBinding
+import com.example.park.db.ParkingDao
+import com.example.park.db.ParkingDatabase
 import com.example.park.foregroundservices.ParkingDetectorService
+import com.example.park.model.Parking
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 
 class MainActivity : AppCompatActivity() {
+    companion object {
+        lateinit var database: ParkingDatabase
+    }
+
     private lateinit var binding: ActivityMainBinding
     var locationPermission = false
     var notificationPermission = false
@@ -26,6 +39,38 @@ class MainActivity : AppCompatActivity() {
         setContentView(view)
 
         setSavedToggle()
+
+        database =  Room.databaseBuilder(
+            applicationContext,
+            ParkingDatabase::class.java,
+            ParkingDatabase.NAME
+        ).allowMainThreadQueries().build()
+
+        val parkingDao: ParkingDao = database.parkingDao()
+
+        val adapter = ParkingItemAdapter(listOf())
+        binding.parkingRecyclerView.layoutManager = LinearLayoutManager(this)
+        binding.parkingRecyclerView.adapter = adapter
+
+        parkingDao.getAll().observe(this) { dataset ->
+            adapter.updateDataset(dataset)
+        }
+
+        binding.parkingRecyclerView.layoutManager = LinearLayoutManager(this)
+
+        binding.saveButton.setOnClickListener {
+
+            val alertDialog = MaterialAlertDialogBuilder(this)
+                .setTitle("Save Parking Space?")
+                .setPositiveButton("Add") { dialog, which ->
+                    saveParking()
+                }
+                .setNegativeButton("Cancel") { dialog, which ->
+                    dialog.dismiss()
+                }
+                .create()
+            alertDialog.show()
+        }
 
         binding.autoSaveToggle.setOnCheckedChangeListener { buttonView, isChecked ->
 
@@ -58,7 +103,7 @@ class MainActivity : AppCompatActivity() {
                     .setTitle("Note")
                     .setMessage("Notification and Location permissions are required for this feature. Precise Location needs to be on for this feature to work. App should always have location access. Saves Parking space when phone is disconnected from Android Auto.")
                     .setPositiveButton("OK") { dialog, which ->
-
+                        dialog.dismiss()
                     }
                     .show()
                 alert.setOnDismissListener {
@@ -103,50 +148,6 @@ class MainActivity : AppCompatActivity() {
         ) == PackageManager.PERMISSION_GRANTED
     }
 
-//    val requestPermissionLauncherNotification =
-//        registerForActivityResult(
-//            ActivityResultContracts.RequestPermission()
-//        ) { isGranted: Boolean ->
-//            notificationPermission = isGranted
-//        }
-//
-//    val requestPermissionLauncherLocation =
-//        registerForActivityResult(
-//            ActivityResultContracts.RequestPermission()
-//        ) { isGranted: Boolean ->
-//            locationPermission = isGranted
-//        }
-//
-//    private fun askLocationPermission()
-//    {
-//        if (ContextCompat.checkSelfPermission(
-//                this@MainActivity,
-//                Manifest.permission.ACCESS_FINE_LOCATION
-//            ) == PackageManager.PERMISSION_GRANTED
-//        ) {
-//            locationPermission=true
-//        } else {
-//            requestPermissionLauncherLocation.launch(
-//                Manifest.permission.ACCESS_FINE_LOCATION
-//            )
-//        }
-//    }
-//
-//    private fun askNotificationPermission()
-//    {
-//        if (ContextCompat.checkSelfPermission(
-//                this@MainActivity,
-//                Manifest.permission.POST_NOTIFICATIONS
-//            ) == PackageManager.PERMISSION_GRANTED
-//        ) {
-//            notificationPermission=true
-//        } else {
-//            requestPermissionLauncherNotification.launch(
-//                Manifest.permission.POST_NOTIFICATIONS
-//            )
-//        }
-//    }
-
     private fun askPermissions()
     {
         val permissions = mutableListOf<String>()
@@ -166,6 +167,31 @@ class MainActivity : AppCompatActivity() {
         }
         ActivityCompat.requestPermissions(this, permissions.toTypedArray(), 1);
 
+    }
+
+    private fun saveParking() {
+        val lm = getSystemService(LOCATION_SERVICE) as LocationManager
+        val location: Location? = if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            lm.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+        }else{
+            null
+        }
+        val longitude: Double = location?.longitude ?: Double.MIN_VALUE
+        val latitude: Double = location?.latitude ?: Double.MIN_VALUE
+        val altitude:Double = location?.altitude ?: Double.MIN_VALUE
+
+        if(minOf(longitude,latitude,altitude)!=Double.MIN_VALUE)
+        {
+            val parking: Parking = Parking("Last Saved",latitude, longitude, altitude,0)
+            MainActivity.database.parkingDao().insert(parking)
+        }else{
+            Toast.makeText(this,"Grant Location permissions for this feature", Toast.LENGTH_LONG).show()
+            askPermissions()
+        }
     }
 
 

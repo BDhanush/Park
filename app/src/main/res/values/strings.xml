@@ -2,4 +2,9 @@
     <string name="app_name">Park</string>
     <string name="automatic_parking_detector">Automatic Parking Detector</string>
     <string name="save">save</string>
+    <string name="longitude">Longitude: %f</string>
+    <string name="latitude">Latitude: %f</string>
+    <string name="altitude">Altitude: %f m</string>
+    <string name="guideAltitude">Go %s %f m</string>
+
 </resources>

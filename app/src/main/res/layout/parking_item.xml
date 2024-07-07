@@ -8,7 +8,7 @@
     app:cardCornerRadius="16dp"
     android:clickable="true"
     android:focusable="true"
-    android:id="@+id/streakCard"
+    android:id="@+id/parkingCard"
     >
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"

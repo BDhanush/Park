@@ -1,12 +1,19 @@
 package com.example.park.foregroundservices
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.location.Location
+import android.location.LocationManager
 import android.os.IBinder
 import android.widget.Toast
 import androidx.car.app.connection.CarConnection
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleService
+import com.example.park.MainActivity
 import com.example.park.R
+import com.example.park.model.Parking
 
 
 class ParkingDetectorService:LifecycleService() {
@@ -61,6 +68,25 @@ class ParkingDetectorService:LifecycleService() {
 
     private fun saveParking() {
         Toast.makeText(applicationContext,"hi",Toast.LENGTH_SHORT).show()
+        val lm = getSystemService(LOCATION_SERVICE) as LocationManager
+        val location: Location? = if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            lm.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+        }else{
+            null
+        }
+        val longitude: Double = location?.longitude ?: Double.MIN_VALUE
+        val latitude: Double = location?.latitude ?: Double.MIN_VALUE
+        val altitude:Double = location?.altitude ?: Double.MIN_VALUE
+
+        if(minOf(longitude,latitude,altitude)!=Double.MIN_VALUE)
+        {
+            val parking:Parking = Parking("Last Saved",latitude, longitude, altitude,0)
+            MainActivity.database.parkingDao().insert(parking)
+        }
     }
 
     enum class Actions{
