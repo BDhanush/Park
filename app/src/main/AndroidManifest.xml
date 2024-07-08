@@ -41,7 +41,7 @@
 
         <service
             android:name=".foregroundservices.ParkingDetectorService"
-            android:foregroundServiceType="shortService" />
+            android:foregroundServiceType="location" />
     </application>
 
 </manifest>

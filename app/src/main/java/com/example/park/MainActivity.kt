@@ -171,15 +171,30 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun saveParking() {
+        Toast.makeText(applicationContext,"hi",Toast.LENGTH_SHORT).show()
         val lm = getSystemService(LOCATION_SERVICE) as LocationManager
-        val location: Location? = if (ActivityCompat.checkSelfPermission(
+//        val location: Location? = if (ActivityCompat.checkSelfPermission(
+//                this,
+//                Manifest.permission.ACCESS_FINE_LOCATION
+//            ) == PackageManager.PERMISSION_GRANTED
+//        ) {
+//            lm.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+//        }else{
+//            null
+//        }
+        var location: Location? = null
+        if (ActivityCompat.checkSelfPermission(
                 this,
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
         ) {
-            lm.getLastKnownLocation(LocationManager.GPS_PROVIDER)
-        }else{
-            null
+            lm.getCurrentLocation(
+                LocationManager.GPS_PROVIDER,
+                null,
+                application.mainExecutor
+            ) {l->
+                location = l
+            }
         }
         val longitude: Double = location?.longitude ?: Double.MIN_VALUE
         val latitude: Double = location?.latitude ?: Double.MIN_VALUE
@@ -187,11 +202,8 @@ class MainActivity : AppCompatActivity() {
 
         if(minOf(longitude,latitude,altitude)!=Double.MIN_VALUE)
         {
-            val parking: Parking = Parking("Last Saved",latitude, longitude, altitude,0)
+            val parking:Parking = Parking("Last Saved",latitude, longitude, altitude,0)
             MainActivity.database.parkingDao().insert(parking)
-        }else{
-            Toast.makeText(this,"Grant Location permissions for this feature", Toast.LENGTH_LONG).show()
-            askPermissions()
         }
     }
 
