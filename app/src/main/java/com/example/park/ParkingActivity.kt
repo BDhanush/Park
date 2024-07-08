@@ -3,13 +3,15 @@ package com.example.park
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.LocationListener
 import android.location.LocationManager
 import android.net.Uri
 import android.os.Bundle
+import android.os.Looper
+import android.view.View.GONE
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.example.park.databinding.ActivityParkingBinding
-import kotlinx.coroutines.*
 import kotlin.math.abs
 
 class ParkingActivity : AppCompatActivity() {
@@ -31,7 +33,26 @@ class ParkingActivity : AppCompatActivity() {
 
         val lm = getSystemService(LOCATION_SERVICE) as LocationManager
 
-        updateAltitude(lm,altitude)
+        if (ActivityCompat.checkSelfPermission(
+                applicationContext,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            val locationListener = LocationListener { location ->
+                val dif: Double = location.altitude - altitude
+                val guideWord: String = if (dif > 0) "down" else "up"
+                binding.guideAltitude.text = resources.getString(R.string.guideAltitude, guideWord, abs(dif))
+            }
+            lm.requestLocationUpdates(
+                LocationManager.GPS_PROVIDER,
+                0L,
+                0f,
+                locationListener,
+                Looper.getMainLooper()
+            )
+        }else{
+            binding.guideAltitude.visibility = GONE
+        }
 
         binding.navigateButton.setOnClickListener {
             val gmmIntentUri = Uri.parse("google.navigation:q=$latitude,$longitude&mode=w")
@@ -41,29 +62,5 @@ class ParkingActivity : AppCompatActivity() {
 
 
     }
-    private fun updateAltitude(lm: LocationManager,altitude:Double) {
-        val updateJob = CoroutineScope(Dispatchers.Main).launch {
-            while (isActive) {
-                if (ActivityCompat.checkSelfPermission(
-                        applicationContext,
-                        Manifest.permission.ACCESS_FINE_LOCATION
-                    ) == PackageManager.PERMISSION_GRANTED
-                ) {
-                    val location=lm.getLastKnownLocation(LocationManager.GPS_PROVIDER)
-                    if(location!=null) {
-                        val dif: Double = location.altitude - altitude
-                        val guideWord: String = if (dif > 0) "down" else "up"
-                        binding.guideAltitude.text = resources.getString(R.string.guideAltitude, guideWord, abs(dif))
-                    }else{
-//                        binding.guideAltitude.visibility = GONE
-                        binding.guideAltitude.text = resources.getString(R.string.empty)
-                    }
-                }else{
-//                    binding.guideAltitude.visibility = GONE
-                    binding.guideAltitude.text = resources.getString(R.string.empty)
-                }
-                delay(1000)
-            }
-        }
-    }
+
 }
