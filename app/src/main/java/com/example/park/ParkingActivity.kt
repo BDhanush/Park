@@ -38,6 +38,7 @@ class ParkingActivity : AppCompatActivity() {
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
         ) {
+
             val locationListener = LocationListener { location ->
                 val dif: Double = location.altitude - altitude
                 val guideWord: String = if (dif > 0) "down" else "up"

@@ -59,7 +59,7 @@
             style="@style/Widget.Material3.Button.ElevatedButton.Icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Nagivate"
+            android:text="Navigate"
             app:icon="@drawable/baseline_navigation_24" />
     </LinearLayout>
 
