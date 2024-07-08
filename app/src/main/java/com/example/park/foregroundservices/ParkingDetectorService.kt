@@ -1,6 +1,7 @@
 package com.example.park.foregroundservices
 
 import android.Manifest
+import android.app.Application
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
@@ -44,7 +45,7 @@ class ParkingDetectorService:LifecycleService() {
         val message = when(connectionState) {
             CarConnection.CONNECTION_TYPE_NOT_CONNECTED -> {
                 if(!firstRun)
-                    saveParking()
+                    saveParking(application)
                 "Not connected to a car"
             }
             CarConnection.CONNECTION_TYPE_NATIVE -> {
@@ -67,33 +68,36 @@ class ParkingDetectorService:LifecycleService() {
 
     }
 
-    private fun saveParking() {
-        val lm = getSystemService(LOCATION_SERVICE) as LocationManager
 
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            lm.getCurrentLocation(
-                LocationManager.GPS_PROVIDER,
-                null,
-                application.mainExecutor,
-                Consumer<Location> { location ->
-                    val longitude: Double = location?.longitude ?: Double.MIN_VALUE
-                    val latitude: Double = location?.latitude ?: Double.MIN_VALUE
-                    val altitude:Double = location?.altitude ?: Double.MIN_VALUE
+    companion object{
+        fun saveParking(application:Application):Boolean {
+            val lm = application.getSystemService(LOCATION_SERVICE) as LocationManager
 
-                    if(minOf(longitude,latitude,altitude)!=Double.MIN_VALUE)
-                    {
-                        val parking: Parking = Parking("Last Saved",latitude, longitude, altitude,0)
-                        MainActivity.database.parkingDao().insert(parking)
+            if (ActivityCompat.checkSelfPermission(
+                    application.applicationContext,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                lm.getCurrentLocation(
+                    LocationManager.GPS_PROVIDER,
+                    null,
+                    application.mainExecutor,
+                    Consumer<Location> { location ->
+                        val longitude: Double = location?.longitude ?: Double.MIN_VALUE
+                        val latitude: Double = location?.latitude ?: Double.MIN_VALUE
+                        val altitude: Double = location?.altitude ?: Double.MIN_VALUE
+
+                        if (minOf(longitude, latitude, altitude) != Double.MIN_VALUE) {
+                            val parking: Parking = Parking("Last Saved", latitude, longitude, altitude, 0)
+                            MainActivity.database.parkingDao().insert(parking)
+                        }
                     }
-                }
-            )
+                )
+            }else{
+                return false
+            }
+            return true
         }
-
-
     }
 
     enum class Actions{

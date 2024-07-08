@@ -4,8 +4,6 @@ import android.Manifest
 import android.app.ActivityManager
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.location.Location
-import android.location.LocationManager
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -18,9 +16,7 @@ import com.example.park.databinding.ActivityMainBinding
 import com.example.park.db.ParkingDao
 import com.example.park.db.ParkingDatabase
 import com.example.park.foregroundservices.ParkingDetectorService
-import com.example.park.model.Parking
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import java.util.function.Consumer
 
 
 class MainActivity : AppCompatActivity() {
@@ -172,29 +168,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun saveParking() {
-        val lm = getSystemService(LOCATION_SERVICE) as LocationManager
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            lm.getCurrentLocation(
-                LocationManager.GPS_PROVIDER,
-                null,
-                application.mainExecutor,
-                Consumer<Location> { location ->
-                    val longitude: Double = location?.longitude ?: Double.MIN_VALUE
-                    val latitude: Double = location?.latitude ?: Double.MIN_VALUE
-                    val altitude:Double = location?.altitude ?: Double.MIN_VALUE
-
-                    if(minOf(longitude,latitude,altitude)!=Double.MIN_VALUE)
-                    {
-                        val parking: Parking = Parking("Last Saved",latitude, longitude, altitude,0)
-                        database.parkingDao().insert(parking)
-                    }
-                }
-            )
-        }else{
+        if (!ParkingDetectorService.saveParking(application)) {
             Toast.makeText(this,"Grant Location permissions for this feature", Toast.LENGTH_LONG).show()
             askPermissions()
         }
