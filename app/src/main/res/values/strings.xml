@@ -6,5 +6,6 @@
     <string name="latitude">Latitude: %f</string>
     <string name="altitude">Altitude: %f m</string>
     <string name="guideAltitude">Go %s %f m</string>
+    <string name="empty" />
 
 </resources>

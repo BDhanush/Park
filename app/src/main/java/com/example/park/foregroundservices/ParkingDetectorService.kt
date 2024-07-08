@@ -17,7 +17,7 @@ import com.example.park.model.Parking
 
 
 class ParkingDetectorService:LifecycleService() {
-    private var firstRun = false
+    private var firstRun = true
 
     override fun onBind(intent: Intent): IBinder? {
         super.onBind(intent)
@@ -42,7 +42,7 @@ class ParkingDetectorService:LifecycleService() {
     private fun onConnectionStateUpdated(connectionState: Int) {
         val message = when(connectionState) {
             CarConnection.CONNECTION_TYPE_NOT_CONNECTED -> {
-                if(firstRun)
+                if(!firstRun)
                     saveParking()
                 "Not connected to a car"
             }
@@ -54,7 +54,7 @@ class ParkingDetectorService:LifecycleService() {
             }
             else -> "Unknown car connection type"
         }
-        firstRun = true
+        firstRun = false
 
         val notification =NotificationCompat.Builder(this, "Parking_Service_Channel")
             .setSmallIcon(R.drawable.ic_launcher_foreground)

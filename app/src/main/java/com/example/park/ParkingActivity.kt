@@ -3,11 +3,9 @@ package com.example.park
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.location.Location
 import android.location.LocationManager
 import android.net.Uri
 import android.os.Bundle
-import android.view.View.GONE
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.example.park.databinding.ActivityParkingBinding
@@ -32,22 +30,8 @@ class ParkingActivity : AppCompatActivity() {
         binding.altitude.text=resources.getString(R.string.altitude,altitude)
 
         val lm = getSystemService(LOCATION_SERVICE) as LocationManager
-        val location: Location? = if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            lm.getLastKnownLocation(LocationManager.GPS_PROVIDER)
-        }else{
-            null
-        }
 
-        if(location==null)
-        {
-            binding.guideAltitude.visibility=GONE
-        }else{
-            updateAltitude(lm,altitude)
-        }
+        updateAltitude(lm,altitude)
 
         binding.navigateButton.setOnClickListener {
             val gmmIntentUri = Uri.parse("google.navigation:q=$latitude,$longitude&mode=w")
@@ -66,11 +50,19 @@ class ParkingActivity : AppCompatActivity() {
                     ) == PackageManager.PERMISSION_GRANTED
                 ) {
                     val location=lm.getLastKnownLocation(LocationManager.GPS_PROVIDER)
-                    val dif: Double = location!!.altitude - altitude
-                    val guideWord: String = if (dif > 0) "down" else "up"
-                    binding.guideAltitude.text = resources.getString(R.string.guideAltitude, guideWord, abs(dif))
-                    delay(2000)
+                    if(location!=null) {
+                        val dif: Double = location.altitude - altitude
+                        val guideWord: String = if (dif > 0) "down" else "up"
+                        binding.guideAltitude.text = resources.getString(R.string.guideAltitude, guideWord, abs(dif))
+                    }else{
+//                        binding.guideAltitude.visibility = GONE
+                        binding.guideAltitude.text = resources.getString(R.string.empty)
+                    }
+                }else{
+//                    binding.guideAltitude.visibility = GONE
+                    binding.guideAltitude.text = resources.getString(R.string.empty)
                 }
+                delay(1000)
             }
         }
     }
