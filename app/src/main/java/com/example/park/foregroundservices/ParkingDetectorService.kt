@@ -58,7 +58,7 @@ class ParkingDetectorService:LifecycleService() {
         firstRun = false
 
         val notification =NotificationCompat.Builder(this, "Parking_Service_Channel")
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setSmallIcon(R.drawable.car_24)
             .setContentTitle("Parking Detector is active")
             .setContentText(message)
             .setOngoing(true)
