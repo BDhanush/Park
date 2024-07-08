@@ -11,10 +11,7 @@ import android.view.View.GONE
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.example.park.databinding.ActivityParkingBinding
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import kotlin.math.abs
 
 class ParkingActivity : AppCompatActivity() {
@@ -72,7 +69,7 @@ class ParkingActivity : AppCompatActivity() {
                     val dif: Double = location!!.altitude - altitude
                     val guideWord: String = if (dif > 0) "down" else "up"
                     binding.guideAltitude.text = resources.getString(R.string.guideAltitude, guideWord, abs(dif))
-//                    delay(1000)
+                    delay(2000)
                 }
             }
         }

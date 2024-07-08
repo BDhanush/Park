@@ -28,6 +28,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private lateinit var binding: ActivityMainBinding
+
     var locationPermission = false
     var notificationPermission = false
 
