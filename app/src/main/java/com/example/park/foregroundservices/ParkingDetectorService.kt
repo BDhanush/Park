@@ -62,7 +62,6 @@ class ParkingDetectorService:LifecycleService() {
             .setSmallIcon(R.drawable.car_24)
             .setContentTitle("Parking Detector is active")
             .setContentText(message)
-            .setOngoing(true)
             .build()
         startForeground(1,notification,FOREGROUND_SERVICE_TYPE_LOCATION)
 

@@ -21,19 +21,19 @@
             android:id="@+id/latitude"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Latitude" />
+            tools:text="Latitude" />
 
         <TextView
             android:id="@+id/longitude"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Longitude" />
+            tools:text="Longitude" />
 
         <TextView
             android:id="@+id/altitude"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Altitude" />
+            tools:text="Altitude" />
 
     </LinearLayout>
 
@@ -44,7 +44,7 @@
         android:gravity="center"
         android:orientation="vertical"
         app:layout_constraintTop_toBottomOf="@id/coordinates"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/line"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
         <TextView
@@ -63,5 +63,38 @@
             android:text="Navigate"
             app:icon="@drawable/baseline_navigation_24" />
     </LinearLayout>
+
+    <View
+        android:id="@+id/line"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@color/material_dynamic_neutral60"
+        android:layout_margin="16dp"
+        app:layout_constraintBottom_toTopOf="@id/noteButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+    <Button
+        android:id="@+id/noteButton"
+        style="@style/Widget.Material3.Button.ElevatedButton.Icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Note"
+        android:layout_margin="16dp"
+        app:icon="@drawable/baseline_add_24"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+    <TextView
+        android:id="@+id/viewNote"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:gravity="center"
+        android:maxLines="1"
+        app:layout_constraintTop_toBottomOf="@id/line"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/noteButton"
+        app:layout_constraintStart_toStartOf="parent"
+        android:text="View Note"
+        />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
