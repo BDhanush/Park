@@ -1,15 +1,19 @@
 package com.example.park.adapter
 
+import android.content.Context
 import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
+import com.example.park.MainActivity
 import com.example.park.ParkingActivity
 import com.example.park.R
 import com.example.park.model.Parking
 import com.google.android.material.card.MaterialCardView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class ParkingItemAdapter(private var dataSet: List<Parking>) :
     RecyclerView.Adapter<ParkingItemAdapter.ViewHolder>() {
@@ -49,6 +53,21 @@ class ParkingItemAdapter(private var dataSet: List<Parking>) :
             viewHolder.itemView.context.startActivity(intent)
         }
 
+        viewHolder.parkingCard.setOnLongClickListener {
+            val alertDialog = MaterialAlertDialogBuilder(viewHolder.itemView.context)
+                .setTitle("Delete Parking: ${dataSet[position].title}")
+                .setMessage("Parking Space will be deleted")
+                .setPositiveButton("Delete") { dialog, which ->
+                    deleteParking(dataSet[position],viewHolder.itemView.context)
+                }
+                .setNegativeButton("Cancel") { dialog, which ->
+                    dialog.dismiss()
+                }
+                .create()
+            alertDialog.show()
+            return@setOnLongClickListener true
+        }
+
     }
 
     // Return the size of your dataset (invoked by the layout manager)
@@ -60,4 +79,10 @@ class ParkingItemAdapter(private var dataSet: List<Parking>) :
         notifyDataSetChanged()
     }
 
+}
+
+fun deleteParking(parking: Parking,context: Context)
+{
+    MainActivity.database.parkingDao().delete(parking)
+    Toast.makeText(context,"Parking Space Deleted", Toast.LENGTH_LONG).show()
 }
