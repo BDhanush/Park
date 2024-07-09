@@ -2,6 +2,7 @@ package com.example.park.foregroundservices
 
 import android.Manifest
 import android.app.Application
+import android.app.PendingIntent
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
@@ -58,10 +59,16 @@ class ParkingDetectorService:LifecycleService() {
         }
         firstRun = false
 
+        val intent = Intent(this, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+        }
+        val pendingIntent: PendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+
         val notification =NotificationCompat.Builder(this, "Parking_Service_Channel")
             .setSmallIcon(R.drawable.car_24)
             .setContentTitle("Parking Detector is active")
             .setContentText(message)
+            .setContentIntent(pendingIntent)
             .build()
         startForeground(1,notification,FOREGROUND_SERVICE_TYPE_LOCATION)
 
