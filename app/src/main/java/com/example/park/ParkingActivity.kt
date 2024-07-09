@@ -12,6 +12,9 @@ import android.view.View.GONE
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.example.park.databinding.ActivityParkingBinding
+import com.example.park.databinding.NoteBinding
+import com.example.park.model.Parking
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlin.math.abs
 
 class ParkingActivity : AppCompatActivity() {
@@ -26,6 +29,10 @@ class ParkingActivity : AppCompatActivity() {
         val longitude=intent.getDoubleExtra("longitude", Double.MIN_VALUE)
         val latitude=intent.getDoubleExtra("latitude", Double.MIN_VALUE)
         val altitude=intent.getDoubleExtra("altitude", Double.MIN_VALUE)
+
+        var title:String= intent.getStringExtra("title").toString()
+        var note:String= intent.getStringExtra("note").toString()
+        val id:Long= intent.getLongExtra("id",0)
 
         binding.longitude.text=resources.getString(R.string.longitude,longitude)
         binding.latitude.text=resources.getString(R.string.latitude,latitude)
@@ -59,6 +66,30 @@ class ParkingActivity : AppCompatActivity() {
             val gmmIntentUri = Uri.parse("google.navigation:q=$latitude,$longitude&mode=w")
             val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
             startActivity(mapIntent)
+        }
+
+        binding.noteButton.setOnClickListener {
+            val noteBinding = NoteBinding.inflate(layoutInflater)
+            val noteView = noteBinding.root
+            noteBinding.note.setText(note)
+            val alert = MaterialAlertDialogBuilder(this)
+                .setTitle("Edit Note")
+                .setView(noteView)
+                .setPositiveButton("Edit") { dialog, which ->
+                    note = noteBinding.note.text.toString().trim()
+                    val parking:Parking = Parking(title, latitude, longitude, altitude, id, note)
+                    MainActivity.database.parkingDao().insert(parking)
+                }.setNegativeButton("Cancel") { dialog, which ->
+                    dialog.dismiss()
+                }
+                .show()
+        }
+
+        binding.viewNote.setOnClickListener {
+            val alert = MaterialAlertDialogBuilder(this)
+                .setTitle("Note")
+                .setMessage(note)
+                .show()
         }
 
 

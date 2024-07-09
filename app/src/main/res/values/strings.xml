@@ -7,5 +7,6 @@
     <string name="altitude">Altitude: %f m</string>
     <string name="guideAltitude">Go %s %f m</string>
     <string name="empty" />
+    <string name="noteHint">Note (limit: 256)</string>
 
 </resources>

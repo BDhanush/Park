@@ -21,19 +21,19 @@
             android:id="@+id/latitude"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Latitude" />
+            tools:text="Latitude" />
 
         <TextView
             android:id="@+id/longitude"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Longitude" />
+            tools:text="Longitude" />
 
         <TextView
             android:id="@+id/altitude"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Altitude" />
+            tools:text="Altitude" />
 
     </LinearLayout>
 
@@ -69,10 +69,7 @@
         android:layout_width="match_parent"
         android:layout_height="2dp"
         android:background="@color/material_dynamic_neutral60"
-        android:layout_marginBottom="0dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_margin="16dp"
         app:layout_constraintBottom_toTopOf="@id/noteButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -82,10 +79,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Note"
+        android:layout_margin="16dp"
         app:icon="@drawable/baseline_add_24"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"/>
     <TextView
+        android:id="@+id/viewNote"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:gravity="center"

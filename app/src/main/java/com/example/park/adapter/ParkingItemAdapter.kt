@@ -44,6 +44,7 @@ class ParkingItemAdapter(private var dataSet: List<Parking>) :
             intent.putExtra("latitude", dataSet[position].latitude)
             intent.putExtra("longitude", dataSet[position].longitude)
             intent.putExtra("altitude", dataSet[position].altitude)
+            intent.putExtra("note", dataSet[position].note)
             intent.putExtra("id", dataSet[position].id)
             viewHolder.itemView.context.startActivity(intent)
         }
