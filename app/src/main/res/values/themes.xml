@@ -3,6 +3,8 @@
     <style name="Base.Theme.Park" parent="Theme.Material3.DayNight">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="android:statusBarColor">@color/black</item>
+
     </style>
 
     <style name="Theme.Park" parent="Base.Theme.Park" />

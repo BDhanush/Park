@@ -34,17 +34,18 @@ class ParkingActivity : AppCompatActivity() {
         var note:String= intent.getStringExtra("note").toString()
         val id:Long= intent.getLongExtra("id",0)
 
+        setTitle(title)
+
         binding.longitude.text=resources.getString(R.string.longitude,longitude)
         binding.latitude.text=resources.getString(R.string.latitude,latitude)
         binding.altitude.text=resources.getString(R.string.altitude,altitude)
-
-        val lm = getSystemService(LOCATION_SERVICE) as LocationManager
 
         if (ActivityCompat.checkSelfPermission(
                 applicationContext,
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
         ) {
+            val lm = getSystemService(LOCATION_SERVICE) as LocationManager
 
             val locationListener = LocationListener { location ->
                 val dif: Double = location.altitude - altitude
