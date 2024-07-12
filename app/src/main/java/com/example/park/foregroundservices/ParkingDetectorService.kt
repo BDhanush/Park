@@ -6,12 +6,12 @@ import android.app.PendingIntent
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
-import android.location.LocationManager
 import android.location.LocationRequest
 import android.os.IBinder
 import androidx.car.app.connection.CarConnection
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.LifecycleService
 import com.example.park.MainActivity
 import com.example.park.R
@@ -78,13 +78,19 @@ class ParkingDetectorService:LifecycleService() {
 
     companion object{
         fun saveParking(application:Application):Boolean {
-            val lm = application.getSystemService(LOCATION_SERVICE) as LocationManager
+//            val lm = application.getSystemService(LOCATION_SERVICE) as LocationManager
 
             if (ActivityCompat.checkSelfPermission(
                     application.applicationContext,
                     Manifest.permission.ACCESS_FINE_LOCATION
                 ) == PackageManager.PERMISSION_GRANTED
             ) {
+
+                val intent = Intent(application.applicationContext, MainActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                }
+                val pendingIntent: PendingIntent = PendingIntent.getActivity(application.applicationContext, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+
                 val cancellationTokenSource = CancellationTokenSource()
                 val fusedLocationClient = LocationServices.getFusedLocationProviderClient(application.applicationContext)
                 fusedLocationClient.getCurrentLocation(
@@ -98,14 +104,35 @@ class ParkingDetectorService:LifecycleService() {
                     if (minOf(longitude, latitude, altitude) != Double.MIN_VALUE) {
                         val parking = Parking("Last Saved", latitude, longitude, altitude, 0)
                         MainActivity.database.parkingDao().insert(parking)
+
+                        sendCompleteNotif(application,"Parking Saved",pendingIntent)
                     }
                 }.addOnFailureListener {
-                    //TO-DO
+
+                    sendCompleteNotif(application,"Unable to save parking",pendingIntent)
                 }
             }else {
                 return false
             }
             return true
+        }
+
+        private fun sendCompleteNotif(application: Application,message:String,pendingIntent: PendingIntent) {
+            val notification = NotificationCompat.Builder(application.applicationContext, "Parked_indicator")
+                .setSmallIcon(R.drawable.car_24)
+                .setContentTitle(message)
+                .setContentIntent(pendingIntent)
+                .build()
+            with(NotificationManagerCompat.from(application.applicationContext)) {
+                if (ActivityCompat.checkSelfPermission(
+                        application.applicationContext,
+                        Manifest.permission.POST_NOTIFICATIONS
+                    ) == PackageManager.PERMISSION_GRANTED
+                ) {
+
+                    notify(2, notification)
+                }
+            }
         }
     }
 
