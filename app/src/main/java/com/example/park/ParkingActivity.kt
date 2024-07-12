@@ -3,17 +3,15 @@ package com.example.park
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.location.LocationListener
-import android.location.LocationManager
 import android.net.Uri
 import android.os.Bundle
-import android.os.Looper
 import android.view.View.GONE
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.example.park.databinding.ActivityParkingBinding
 import com.example.park.databinding.NoteBinding
 import com.example.park.model.Parking
+import com.google.android.gms.location.*
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlin.math.abs
 
@@ -45,20 +43,37 @@ class ParkingActivity : AppCompatActivity() {
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
         ) {
-            val lm = getSystemService(LOCATION_SERVICE) as LocationManager
+            val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 1000)
+                .setMinUpdateIntervalMillis(500)
+                .build()
 
-            val locationListener = LocationListener { location ->
-                val dif: Double = location.altitude - altitude
-                val guideWord: String = if (dif > 0) "down" else "up"
-                binding.guideAltitude.text = resources.getString(R.string.guideAltitude, guideWord, abs(dif))
+            val locationCallback = object : LocationCallback() {
+                override fun onLocationResult(locationResult: LocationResult) {
+                    locationResult ?: return
+                    for (location in locationResult.locations) {
+                        val dif: Double = location.altitude - altitude
+                        val guideWord: String = if (dif > 0) "down" else "up"
+                        binding.guideAltitude.text = resources.getString(R.string.guideAltitude, guideWord, abs(dif))
+                    }
+                }
             }
-            lm.requestLocationUpdates(
-                LocationManager.GPS_PROVIDER,
-                0L,
-                0f,
-                locationListener,
-                Looper.getMainLooper()
-            )
+            val fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+            fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null)
+
+//            val lm = getSystemService(LOCATION_SERVICE) as LocationManager
+//
+//            val locationListener = LocationListener { location ->
+//                val dif: Double = location.altitude - altitude
+//                val guideWord: String = if (dif > 0) "down" else "up"
+//                binding.guideAltitude.text = resources.getString(R.string.guideAltitude, guideWord, abs(dif))
+//            }
+//            lm.requestLocationUpdates(
+//                LocationManager.GPS_PROVIDER,
+//                0L,
+//                0f,
+//                locationListener,
+//                Looper.getMainLooper()
+//            )
         }else{
             binding.guideAltitude.visibility = GONE
         }
