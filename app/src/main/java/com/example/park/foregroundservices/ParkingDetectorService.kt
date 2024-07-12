@@ -6,8 +6,8 @@ import android.app.PendingIntent
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
-import android.location.Location
 import android.location.LocationManager
+import android.location.LocationRequest
 import android.os.IBinder
 import androidx.car.app.connection.CarConnection
 import androidx.core.app.ActivityCompat
@@ -16,7 +16,8 @@ import androidx.lifecycle.LifecycleService
 import com.example.park.MainActivity
 import com.example.park.R
 import com.example.park.model.Parking
-import java.util.function.Consumer
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.tasks.CancellationTokenSource
 
 
 class ParkingDetectorService:LifecycleService() {
@@ -84,22 +85,24 @@ class ParkingDetectorService:LifecycleService() {
                     Manifest.permission.ACCESS_FINE_LOCATION
                 ) == PackageManager.PERMISSION_GRANTED
             ) {
-                lm.getCurrentLocation(
-                    LocationManager.GPS_PROVIDER,
-                    null,
-                    application.mainExecutor,
-                    Consumer<Location> { location ->
-                        val longitude: Double = location?.longitude ?: Double.MIN_VALUE
-                        val latitude: Double = location?.latitude ?: Double.MIN_VALUE
-                        val altitude: Double = location?.altitude ?: Double.MIN_VALUE
+                val cancellationTokenSource = CancellationTokenSource()
+                val fusedLocationClient = LocationServices.getFusedLocationProviderClient(application.applicationContext)
+                fusedLocationClient.getCurrentLocation(
+                    LocationRequest.QUALITY_HIGH_ACCURACY,
+                    cancellationTokenSource.token
+                ).addOnSuccessListener { location ->
+                    val longitude: Double = location?.longitude ?: Double.MIN_VALUE
+                    val latitude: Double = location?.latitude ?: Double.MIN_VALUE
+                    val altitude: Double = location?.altitude ?: Double.MIN_VALUE
 
-                        if (minOf(longitude, latitude, altitude) != Double.MIN_VALUE) {
-                            val parking: Parking = Parking("Last Saved", latitude, longitude, altitude, 0)
-                            MainActivity.database.parkingDao().insert(parking)
-                        }
+                    if (minOf(longitude, latitude, altitude) != Double.MIN_VALUE) {
+                        val parking = Parking("Last Saved", latitude, longitude, altitude, 0)
+                        MainActivity.database.parkingDao().insert(parking)
                     }
-                )
-            }else{
+                }.addOnFailureListener {
+                    //TO-DO
+                }
+            }else {
                 return false
             }
             return true
