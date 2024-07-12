@@ -78,7 +78,6 @@ class ParkingDetectorService:LifecycleService() {
 
     companion object{
         fun saveParking(application:Application):Boolean {
-//            val lm = application.getSystemService(LOCATION_SERVICE) as LocationManager
 
             if (ActivityCompat.checkSelfPermission(
                     application.applicationContext,
