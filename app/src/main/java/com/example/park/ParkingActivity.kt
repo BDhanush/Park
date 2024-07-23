@@ -83,6 +83,11 @@ class ParkingActivity : AppCompatActivity() {
             val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
             startActivity(mapIntent)
         }
+        binding.locateButton.setOnClickListener {
+            val gmmIntentUri = Uri.parse("geo:$latitude,$longitude?q=$latitude,$longitude")
+            val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
+            startActivity(mapIntent)
+        }
 
         binding.noteButton.setOnClickListener {
             val noteBinding = NoteBinding.inflate(layoutInflater)

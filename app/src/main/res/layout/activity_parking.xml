@@ -62,6 +62,13 @@
             android:layout_height="wrap_content"
             android:text="Navigate"
             app:icon="@drawable/baseline_navigation_24" />
+        <Button
+            android:id="@+id/locateButton"
+            style="@style/Widget.Material3.Button.ElevatedButton.Icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Locate"
+            app:icon="@drawable/baseline_location_pin_24" />
     </LinearLayout>
 
     <View
