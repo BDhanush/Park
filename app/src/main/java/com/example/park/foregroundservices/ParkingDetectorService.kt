@@ -6,7 +6,6 @@ import android.app.PendingIntent
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
-import android.location.LocationRequest
 import android.os.IBinder
 import androidx.car.app.connection.CarConnection
 import androidx.core.app.ActivityCompat
@@ -17,6 +16,7 @@ import com.example.park.MainActivity
 import com.example.park.R
 import com.example.park.model.Parking
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
 
 
@@ -93,7 +93,7 @@ class ParkingDetectorService:LifecycleService() {
                 val cancellationTokenSource = CancellationTokenSource()
                 val fusedLocationClient = LocationServices.getFusedLocationProviderClient(application.applicationContext)
                 fusedLocationClient.getCurrentLocation(
-                    LocationRequest.QUALITY_HIGH_ACCURACY,
+                    Priority.PRIORITY_HIGH_ACCURACY,
                     cancellationTokenSource.token
                 ).addOnSuccessListener { location ->
                     val longitude: Double = location?.longitude ?: Double.MIN_VALUE
